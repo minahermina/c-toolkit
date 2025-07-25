@@ -175,10 +175,10 @@ str_substr(String *dest, const String *src, size_t pos, size_t length)
     // Calculate actual length to extract
     max_length = src->length - pos;
 
-    length = MAX(STR_INIT_CAPACITY, MIN(length, max_length));
+    length = MIN(STR_INIT_CAPACITY, MIN(length, max_length));
 
     str_expand(dest, length);
-    dest->length = src->length;
+    dest->length = length;
 
     memcpy(dest->chars, src->chars + pos, length);
     dest->chars[dest->length] = '\0';
