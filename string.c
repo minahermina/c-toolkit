@@ -32,6 +32,7 @@
 } \
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MUST(condition, message) \
     do { \
         if (!(condition)) { \
@@ -160,6 +161,27 @@ str_copy(String *dest, const String *src)
     MUST(dest->chars != NULL, "Error Allocating memory");
 
     memcpy(dest->chars, src->chars, dest->length);
+}
+
+
+void
+str_substr(String *dest, const String *src, size_t pos, size_t length)
+{
+    size_t max_length;
+    MUST(dest != NULL, "src is NULL in str_substr");
+    MUST(src  != NULL, "dest is NULL in str_substr");
+    MUST(pos < src->length, "pos out of bound in str_substr");
+
+    // Calculate actual length to extract
+    max_length = src->length - pos;
+
+    length = MAX(STR_INIT_CAPACITY, MIN(length, max_length));
+
+    str_expand(dest, length);
+    dest->length = src->length;
+
+    memcpy(dest->chars, src->chars + pos, length);
+    dest->chars[dest->length] = '\0';
 }
 
 
