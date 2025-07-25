@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <ctype.h>
 #include <assert.h>
 
 #define debug_string(str) {  \
@@ -126,9 +127,105 @@ str_init(String *string, const char *init_str)
     string->capacity = 0;
 
     len = strlen(init_str); 
-    printf("init_str: %zu\n", len);
     str_expand(string, MAX(len, STR_INIT_CAPACITY));
 
     str_insert_cstr_at(string, 0, init_str);
     debug_string(string);
+}
+
+void
+str_insert_at(String *string, size_t pos, String *src)
+{
+
+}
+
+void
+str_append(String *dest, String *src)
+{
+
+
+}
+
+void
+str_copy(String *dest, const String *src)
+{
+    MUST(src != NULL, "src is NULL in str_copy");
+    MUST(dest != NULL, "dest is NULL in str_copy");
+
+    dest->length = src->length;
+    dest->capacity = src->capacity;
+
+    dest->chars = realloc(dest->chars, dest->capacity);
+
+    MUST(dest->chars != NULL, "Error Allocating memory");
+
+    memcpy(dest->chars, src->chars, dest->length);
+}
+
+
+void
+str_lower(String *string)
+{
+    char *p;
+    size_t i;
+    MUST(string        != NULL, "string is NULL in str_lower");
+    MUST(string->chars != NULL, "string->chars  is NULL in str_lower");
+
+    for(i = 0; i < string->length; ++i){
+        string->chars[i] =  tolower(string->chars[i]);
+    }
+}
+
+void
+str_upper(String *string)
+{
+    char *p;
+    size_t i;
+    MUST(string        != NULL, "string is NULL in str_lower");
+    MUST(string->chars != NULL, "string->chars  is NULL in str_lower");
+
+    for(i = 0; i < string->length; ++i){
+        string->chars[i] =  toupper(string->chars[i]);
+    }
+}
+
+char
+str_at(const String *string, size_t index)
+{
+    MUST(string        != NULL,  "string is NULL in str_at");
+    MUST(string->chars != NULL,  "string->chars  is NULL in str_at");
+    MUST(index < string->length, "index out of bounds in str_at");
+
+    return string->chars[index];
+}
+
+int
+str_compare(const String *string1, const String *string2)
+{
+    char *p, *q;
+    MUST(string1 != NULL, "string1 is NULL in str_compare");
+    MUST(string2 != NULL, "string2 is NULL in str_compare");
+    MUST(string1->chars != NULL, "string1->chars  is NULL in str_compare");
+    MUST(string2->chars != NULL, "string2->chars is NULL in str_compare");
+
+    p = string1->chars;
+    q = string2->chars;
+    while(*p == *q && *p){
+        p++;
+        q++;
+    }
+
+    return p[0] - q[0];
+}
+
+
+void
+str_free(String *string)
+{
+    MUST(string != NULL, "string is NULL in str_free");
+    free(string->chars);
+
+    string->length = 0;
+    string->capacity = 0;
+    string->chars = NULL;
 }
