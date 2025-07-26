@@ -131,13 +131,22 @@ str_init(String *string, const char *init_str)
     str_expand(string, MAX(len, STR_INIT_CAPACITY));
 
     str_insert_cstr_at(string, 0, init_str);
-    debug_string(string);
 }
 
 void
 str_insert_at(String *string, size_t pos, String *src)
 {
 
+}
+
+
+void
+str_set_at(String *string, size_t index, const char ch)
+{
+    MUST(string != NULL, "string is NULL in str_set_at");
+    MUST(string->chars != NULL, "string->chars is NULL in str_set_at");
+    MUST(index <= string->length, "index is out of bound in str_set_at");
+    string->chars[index] = ch;
 }
 
 void
@@ -177,7 +186,8 @@ str_substr(String *dest, const String *src, size_t pos, size_t length)
 
     length = MIN(length, max_length);
 
-    str_expand(dest, MAX(STR_INIT_CAPACITY, length));
+    length = (dest->capacity > length ? length:STR_INIT_CAPACITY);
+    str_expand(dest, length);
     dest->length = length;
 
     memcpy(dest->chars, src->chars + pos, length);
@@ -185,10 +195,26 @@ str_substr(String *dest, const String *src, size_t pos, size_t length)
 }
 
 
+
+void
+str_reverse(const String *string)
+{
+    size_t i, j, length;
+    char temp;
+    MUST(string != NULL, "string  is NULL in str_reverse");
+    MUST(string->chars != NULL, "string->chars  is NULL in str_reverse");
+
+    length = string->length;
+    for(i = 0, j = length-1; i < length/2; i++, j--){
+        temp = string->chars[i];
+        string->chars[i] = string->chars[j];
+        string->chars[j] = temp;
+    }
+}
+
 void
 str_lower(String *string)
 {
-    char *p;
     size_t i;
     MUST(string        != NULL, "string is NULL in str_lower");
     MUST(string->chars != NULL, "string->chars  is NULL in str_lower");
@@ -201,7 +227,6 @@ str_lower(String *string)
 void
 str_upper(String *string)
 {
-    char *p;
     size_t i;
     MUST(string        != NULL, "string is NULL in str_lower");
     MUST(string->chars != NULL, "string->chars  is NULL in str_lower");
@@ -238,6 +263,25 @@ str_compare(const String *string1, const String *string2)
     }
 
     return p[0] - q[0];
+}
+
+int
+str_icompare(const String *string1, const String *string2)
+{
+    char *p, *q;
+    MUST(string1 != NULL, "string1 is NULL in str_compare");
+    MUST(string2 != NULL, "string2 is NULL in str_compare");
+    MUST(string1->chars != NULL, "string1->chars  is NULL in str_compare");
+    MUST(string2->chars != NULL, "string2->chars is NULL in str_compare");
+
+    p = string1->chars;
+    q = string2->chars;
+    while(tolower(*p) == tolower(*q) && *p){
+        p++;
+        q++;
+    }
+
+    return tolower(p[0]) - tolower(q[0]);
 }
 
 

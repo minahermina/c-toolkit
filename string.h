@@ -45,12 +45,15 @@ void str_insert_cstr_at(String *string, size_t pos, const char *init_str); //
 void str_set_cstr(String *string, const char *cstr); //
 void str_append_cstr(String *string, const char *init_str); //
 void str_insert_at(String *string, size_t pos, String *src);
+void str_set_at(String *string, size_t index, const char ch); //
 void str_append(String *dest, String *src); //
 void str_copy(String *dest, const String *src); //
-void str_substr(String *dest, const String *src, size_t pos, size_t length);
+void str_substr(String *dest, const String *src, size_t pos, size_t length); //
+void str_reverse(const String *string); //
 void str_lower(String *string); //
 void str_upper(String *string); //
 char str_at(const String *string, size_t index); //
 int str_compare(const String *string1, const String *string2); //
-void str_free(String *string);
+int str_icompare(const String *string1, const String *string2); //
+void str_free(String *string); //
 
