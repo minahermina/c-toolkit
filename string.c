@@ -26,7 +26,7 @@
 #include <assert.h>
 
 #define debug_string(str) {  \
-    printf("Length: %4zu\n", (str)->length);\
+    printf("size: %4zu\n", (str)->size);\
     printf("Capacity: %0zu\n", (str)->capacity);\
     printf("Address: %5p\n", (str)->chars);\
 } \
@@ -65,14 +65,14 @@ str_expand(String *string, size_t len)
     MUST(string != NULL, "string is NULL in str_expand");
 
     /* No expanding is required. */
-    if(len <= string->capacity - string->length){
+    if(len <= string->capacity - string->size){
         return;
     }
 
-    string->capacity = nearest_pow(string->length + len + 1);
+    string->capacity = nearest_pow(string->size + len + 1);
     /* Overflow happens */
     if(string->capacity == 0){
-        string->capacity = string->length + len + 1;
+        string->capacity = string->size + len + 1;
     }
 
     string->chars = realloc(string->chars, string->capacity);
@@ -85,17 +85,17 @@ str_insert_cstr_at(String *string, size_t pos, const char *cstr)
     size_t insert_len;
     MUST(string != NULL,        "string is NULL in str_insert_cstr_at");
     MUST(cstr != NULL,          "cstr is NULL in str_init");
-    MUST(pos <= string->length, "pos out of bounds in str_insert_cstr_at");
+    MUST(pos <= string->size, "pos out of bounds in str_insert_cstr_at");
 
     insert_len = strlen(cstr);
 
     str_expand(string, insert_len);
 
     // Move existing content to make room (if not inserting at end)
-    if (pos < string->length) {
+    if (pos < string->size) {
         memmove(string->chars + pos + insert_len,
                 string->chars + pos,
-                string->length - pos);
+                string->size - pos);
     }
 
     if (insert_len == 1) {
@@ -104,8 +104,8 @@ str_insert_cstr_at(String *string, size_t pos, const char *cstr)
         memcpy(string->chars + pos, cstr, insert_len);
     }
 
-    string->length += insert_len;
-    string->chars[string->length] = '\0';
+    string->size += insert_len;
+    string->chars[string->size] = '\0';
 
 }
 
@@ -114,7 +114,7 @@ str_append_cstr(String *string, const char *cstr)
 {
     MUST(string != NULL,        "string is NULL in str_insert_cstr_at");
     MUST(cstr != NULL,          "cstr is NULL in str_init");
-    str_insert_cstr_at(string, string->length, cstr);
+    str_insert_cstr_at(string, string->size, cstr);
 }
 
 void
@@ -124,7 +124,7 @@ str_init(String *string, const char *init_str)
     MUST(string   != NULL, "string is NULL in str_init");
     MUST(init_str != NULL, "init_str is NULL in str_init");
 
-    string->length = 0;
+    string->size = 0;
     string->capacity = 0;
 
     len = strlen(init_str); 
@@ -145,7 +145,7 @@ str_set_at(String *string, size_t index, const char ch)
 {
     MUST(string != NULL, "string is NULL in str_set_at");
     MUST(string->chars != NULL, "string->chars is NULL in str_set_at");
-    MUST(index <= string->length, "index is out of bound in str_set_at");
+    MUST(index <= string->size, "index is out of bound in str_set_at");
     string->chars[index] = ch;
 }
 
@@ -162,14 +162,14 @@ str_copy(String *dest, const String *src)
     MUST(src != NULL, "src is NULL in str_copy");
     MUST(dest != NULL, "dest is NULL in str_copy");
 
-    dest->length = src->length;
+    dest->size = src->size;
     dest->capacity = src->capacity;
 
     dest->chars = realloc(dest->chars, dest->capacity);
 
     MUST(dest->chars != NULL, "Error Allocating memory");
 
-    memcpy(dest->chars, src->chars, dest->length);
+    memcpy(dest->chars, src->chars, dest->size);
 }
 
 
@@ -179,19 +179,19 @@ str_substr(String *dest, const String *src, size_t pos, size_t length)
     size_t max_length;
     MUST(dest != NULL, "src is NULL in str_substr");
     MUST(src  != NULL, "dest is NULL in str_substr");
-    MUST(pos < src->length, "pos out of bound in str_substr");
+    MUST(pos < src->size, "pos out of bound in str_substr");
 
     // Calculate actual length to extract
-    max_length = src->length - pos;
+    max_length = src->size - pos;
 
     length = MIN(length, max_length);
 
     length = (dest->capacity > length ? length:STR_INIT_CAPACITY);
     str_expand(dest, length);
-    dest->length = length;
+    dest->size = length;
 
     memcpy(dest->chars, src->chars + pos, length);
-    dest->chars[dest->length] = '\0';
+    dest->chars[dest->size] = '\0';
 }
 
 
@@ -199,13 +199,13 @@ str_substr(String *dest, const String *src, size_t pos, size_t length)
 void
 str_reverse(const String *string)
 {
-    size_t i, j, length;
+    size_t i, j, size;
     char temp;
     MUST(string != NULL, "string  is NULL in str_reverse");
     MUST(string->chars != NULL, "string->chars  is NULL in str_reverse");
 
-    length = string->length;
-    for(i = 0, j = length-1; i < length/2; i++, j--){
+    size = string->size;
+    for(i = 0, j = size-1; i < size/2; i++, j--){
         temp = string->chars[i];
         string->chars[i] = string->chars[j];
         string->chars[j] = temp;
@@ -219,7 +219,7 @@ str_lower(String *string)
     MUST(string        != NULL, "string is NULL in str_lower");
     MUST(string->chars != NULL, "string->chars  is NULL in str_lower");
 
-    for(i = 0; i < string->length; ++i){
+    for(i = 0; i < string->size; ++i){
         string->chars[i] =  tolower(string->chars[i]);
     }
 }
@@ -231,7 +231,7 @@ str_upper(String *string)
     MUST(string        != NULL, "string is NULL in str_lower");
     MUST(string->chars != NULL, "string->chars  is NULL in str_lower");
 
-    for(i = 0; i < string->length; ++i){
+    for(i = 0; i < string->size; ++i){
         string->chars[i] =  toupper(string->chars[i]);
     }
 }
@@ -241,7 +241,7 @@ str_at(const String *string, size_t index)
 {
     MUST(string        != NULL,  "string is NULL in str_at");
     MUST(string->chars != NULL,  "string->chars  is NULL in str_at");
-    MUST(index < string->length, "index out of bounds in str_at");
+    MUST(index < string->size, "index out of bounds in str_at");
 
     return string->chars[index];
 }
@@ -291,7 +291,7 @@ str_free(String *string)
     MUST(string != NULL, "string is NULL in str_free");
     free(string->chars);
 
-    string->length = 0;
+    string->size = 0;
     string->capacity = 0;
     string->chars = NULL;
 }

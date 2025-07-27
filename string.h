@@ -22,20 +22,20 @@
 
 #define STR_INIT_CAPACITY 63
 #define STR_FMT   "%.*s"
-#define STR_ARG(str) (int)str.length, str.chars
+#define STR_ARG(str) (int)str.size, str.chars
 
 #define STR_FOREACH(str, ch) \
-    for (size_t _i = 0; _i < (str).length && ((ch) = (str).chars[_i], 1); ++_i)
+    for (size_t _i = 0; _i < (str).size && ((ch) = (str).chars[_i], 1); ++_i)
 
 #define debug_string(str) {  \
-    printf("Length: %4zu\n", (str)->length);\
+    printf("size: %4zu\n", (str)->size);\
     printf("Capacity: %0zu\n", (str)->capacity);\
     printf("Address: %5p\n", (str)->chars);\
 } \
 
 typedef struct {
     char *chars;
-    size_t length;
+    size_t size;
     size_t capacity;
 } String;
 
