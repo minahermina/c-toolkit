@@ -28,7 +28,7 @@
 #define debug_string(str) {  \
     printf("size: %4zu\n", (str)->size);\
     printf("Capacity: %0zu\n", (str)->capacity);\
-    printf("Address: %5p\n", (str)->chars);\
+    printf("Address: %5p\n", (str)->arr);\
 } \
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -75,8 +75,8 @@ str_expand(String *string, size_t len)
         string->capacity = string->size + len + 1;
     }
 
-    string->chars = realloc(string->chars, string->capacity);
-    MUST(string->chars != NULL, "Error Allocating memory");
+    string->arr = realloc(string->arr, string->capacity);
+    MUST(string->arr != NULL, "Error Allocating memory");
 }
 
 void
@@ -93,19 +93,19 @@ str_insert_cstr_at(String *string, size_t pos, const char *cstr)
 
     // Move existing content to make room (if not inserting at end)
     if (pos < string->size) {
-        memmove(string->chars + pos + insert_len,
-                string->chars + pos,
+        memmove(string->arr + pos + insert_len,
+                string->arr + pos,
                 string->size - pos);
     }
 
     if (insert_len == 1) {
-        string->chars[pos] = *cstr;
+        string->arr[pos] = *cstr;
     } else {
-        memcpy(string->chars + pos, cstr, insert_len);
+        memcpy(string->arr + pos, cstr, insert_len);
     }
 
     string->size += insert_len;
-    string->chars[string->size] = '\0';
+    string->arr[string->size] = '\0';
 
 }
 
@@ -144,9 +144,9 @@ void
 str_set_at(String *string, size_t index, const char ch)
 {
     MUST(string != NULL, "string is NULL in str_set_at");
-    MUST(string->chars != NULL, "string->chars is NULL in str_set_at");
+    MUST(string->arr != NULL, "string->arr is NULL in str_set_at");
     MUST(index <= string->size, "index is out of bound in str_set_at");
-    string->chars[index] = ch;
+    string->arr[index] = ch;
 }
 
 void
@@ -165,11 +165,11 @@ str_copy(String *dest, const String *src)
     dest->size = src->size;
     dest->capacity = src->capacity;
 
-    dest->chars = realloc(dest->chars, dest->capacity);
+    dest->arr = realloc(dest->arr, dest->capacity);
 
-    MUST(dest->chars != NULL, "Error Allocating memory");
+    MUST(dest->arr != NULL, "Error Allocating memory");
 
-    memcpy(dest->chars, src->chars, dest->size);
+    memcpy(dest->arr, src->arr, dest->size);
 }
 
 
@@ -190,8 +190,8 @@ str_substr(String *dest, const String *src, size_t pos, size_t length)
     str_expand(dest, length);
     dest->size = length;
 
-    memcpy(dest->chars, src->chars + pos, length);
-    dest->chars[dest->size] = '\0';
+    memcpy(dest->arr, src->arr + pos, length);
+    dest->arr[dest->size] = '\0';
 }
 
 
@@ -202,13 +202,13 @@ str_reverse(const String *string)
     size_t i, j, size;
     char temp;
     MUST(string != NULL, "string  is NULL in str_reverse");
-    MUST(string->chars != NULL, "string->chars  is NULL in str_reverse");
+    MUST(string->arr != NULL, "string->arr  is NULL in str_reverse");
 
     size = string->size;
     for(i = 0, j = size-1; i < size/2; i++, j--){
-        temp = string->chars[i];
-        string->chars[i] = string->chars[j];
-        string->chars[j] = temp;
+        temp = string->arr[i];
+        string->arr[i] = string->arr[j];
+        string->arr[j] = temp;
     }
 }
 
@@ -217,10 +217,10 @@ str_lower(String *string)
 {
     size_t i;
     MUST(string        != NULL, "string is NULL in str_lower");
-    MUST(string->chars != NULL, "string->chars  is NULL in str_lower");
+    MUST(string->arr != NULL, "string->arr  is NULL in str_lower");
 
     for(i = 0; i < string->size; ++i){
-        string->chars[i] =  tolower(string->chars[i]);
+        string->arr[i] =  tolower(string->arr[i]);
     }
 }
 
@@ -229,10 +229,10 @@ str_upper(String *string)
 {
     size_t i;
     MUST(string        != NULL, "string is NULL in str_lower");
-    MUST(string->chars != NULL, "string->chars  is NULL in str_lower");
+    MUST(string->arr != NULL, "string->arr  is NULL in str_lower");
 
     for(i = 0; i < string->size; ++i){
-        string->chars[i] =  toupper(string->chars[i]);
+        string->arr[i] =  toupper(string->arr[i]);
     }
 }
 
@@ -240,10 +240,10 @@ char
 str_at(const String *string, size_t index)
 {
     MUST(string        != NULL,  "string is NULL in str_at");
-    MUST(string->chars != NULL,  "string->chars  is NULL in str_at");
+    MUST(string->arr != NULL,  "string->arr  is NULL in str_at");
     MUST(index < string->size, "index out of bounds in str_at");
 
-    return string->chars[index];
+    return string->arr[index];
 }
 
 int
@@ -252,11 +252,11 @@ str_compare(const String *string1, const String *string2)
     char *p, *q;
     MUST(string1 != NULL, "string1 is NULL in str_compare");
     MUST(string2 != NULL, "string2 is NULL in str_compare");
-    MUST(string1->chars != NULL, "string1->chars  is NULL in str_compare");
-    MUST(string2->chars != NULL, "string2->chars is NULL in str_compare");
+    MUST(string1->arr != NULL, "string1->arr  is NULL in str_compare");
+    MUST(string2->arr != NULL, "string2->arr is NULL in str_compare");
 
-    p = string1->chars;
-    q = string2->chars;
+    p = string1->arr;
+    q = string2->arr;
     while(*p == *q && *p){
         p++;
         q++;
@@ -271,11 +271,11 @@ str_icompare(const String *string1, const String *string2)
     char *p, *q;
     MUST(string1 != NULL, "string1 is NULL in str_compare");
     MUST(string2 != NULL, "string2 is NULL in str_compare");
-    MUST(string1->chars != NULL, "string1->chars  is NULL in str_compare");
-    MUST(string2->chars != NULL, "string2->chars is NULL in str_compare");
+    MUST(string1->arr != NULL, "string1->arr  is NULL in str_compare");
+    MUST(string2->arr != NULL, "string2->arr is NULL in str_compare");
 
-    p = string1->chars;
-    q = string2->chars;
+    p = string1->arr;
+    q = string2->arr;
     while(tolower(*p) == tolower(*q) && *p){
         p++;
         q++;
@@ -289,9 +289,9 @@ void
 str_free(String *string)
 {
     MUST(string != NULL, "string is NULL in str_free");
-    free(string->chars);
+    free(string->arr);
 
     string->size = 0;
     string->capacity = 0;
-    string->chars = NULL;
+    string->arr = NULL;
 }
