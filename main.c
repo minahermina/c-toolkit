@@ -2,28 +2,30 @@
 #include <string.h>
 #include <ctype.h>
 #include "string.h"
+#include "arena.h"
+
+#define debug_string(str) {  \
+    printf("size: %4zu\n", (str)->size);\
+    printf("Capacity: %0zu\n", (str)->capacity);\
+    printf("Address: %5p\n", (str)->arr);\
+} \
 
 int
 main()
 {
-    String str = {0}, name = {0};
-    str_init(&str, "MINA");
-    str_init(&name, "MINA ALBERT SAEED");
+    Arena arena = {0};
+    String str = {0};
+    arena_init(&arena, ARENA_REGION_DEFAULT_CAPACITY);
+    arena_dump(&arena);
+
+    str_init(&str, "MINA", &arena);
     printf("str is: " STR_FMT "\n", STR_ARG(str));
+    str_append_cstr(&str, "MINA Albert Saeed", &arena);
+    str_append_cstr(&str, "MINA Albert Saeed", &arena);
+    str_append_cstr(&str, "MINA Albert Saeed", &arena);
+    str_append_cstr(&str, "MINA Albert Saeed", &arena);
 
-    str_reverse(&name);
-    printf("name is: " STR_FMT "\n", STR_ARG(name));
+    arena_destroy(&str);
 
-    str_reverse(&name);
-    printf("name is: " STR_FMT "\n", STR_ARG(name));
-
-    str_append_cstr(&name, "AAAAAAAAAAAAAAAAAA");
-    printf("name is: " STR_FMT "\n", STR_ARG(name));
-
-    str_reverse(&name);
-    printf("name is: " STR_FMT "\n", STR_ARG(name));
-
-    str_free(&str);
-    str_free(&name);
     return 0;
 }

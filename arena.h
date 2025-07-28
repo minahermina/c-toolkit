@@ -18,6 +18,9 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#ifndef ARENA_LIB
+#define ARENA_LIB
+
 #include <unistd.h>
 #include <pthread.h>
 
@@ -79,3 +82,5 @@ void arena_dump(Arena *arena);
 /* Must be used only when no other threads are using the arena*/
 void arena_reset(Arena *arena);
 void arena_destroy(Arena *arena);
+
+#endif

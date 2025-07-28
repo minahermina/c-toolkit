@@ -18,7 +18,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#ifndef STRING_LIB
+#define STRING_LIB
+
 #include <stdio.h>
+#include "arena.h"
 
 #define STR_INIT_CAPACITY 63
 #define STR_FMT   "%.*s"
@@ -42,9 +46,8 @@ typedef struct {
  * Initializes a String object with the contents of a C string.
  * If @init_str is %NULL, the string will be initialized as empty.
  *
- * Since: 1.0
  */
-void str_init(String *string, const char *init_str);
+void str_init(String *string, const char *init_str, Arena *arena);
 
 /**
  * str_insert_cstr_at:
@@ -55,9 +58,8 @@ void str_init(String *string, const char *init_str);
  * Inserts a C string at the specified position in the String object.
  * All characters at and after @pos will be shifted to the right.
  *
- * Since: 1.0
  */
-void str_insert_cstr_at(String *string, size_t pos, const char *init_str);
+void str_insert_cstr_at(String *string, size_t pos, const char *init_str, Arena *arena);
 
 /**
  * str_set_cstr:
@@ -67,7 +69,6 @@ void str_insert_cstr_at(String *string, size_t pos, const char *init_str);
  * Sets the contents of the String object to the given C string,
  * replacing any existing content.
  *
- * Since: 1.0
  */
 void str_set_cstr(String *string, const char *cstr);
 
@@ -78,9 +79,8 @@ void str_set_cstr(String *string, const char *cstr);
  *
  * Appends the contents of a C string to the end of the String object.
  *
- * Since: 1.0
  */
-void str_append_cstr(String *string, const char *init_str);
+void str_append_cstr(String *string, const char *init_str, Arena *arena);
 
 /**
  * str_insert_at:
@@ -91,7 +91,6 @@ void str_append_cstr(String *string, const char *init_str);
  * Inserts the contents of @src at the specified position in @string.
  * All characters at and after @pos will be shifted to the right.
  *
- * Since: 1.0
  */
 void str_insert_at(String *string, size_t pos, String *src);
 
@@ -104,7 +103,6 @@ void str_insert_at(String *string, size_t pos, String *src);
  * Sets the character at the specified index to the given character.
  * The @index must be within the current bounds of the string.
  *
- * Since: 1.0
  */
 void str_set_at(String *string, size_t index, const char ch);
 
@@ -115,7 +113,6 @@ void str_set_at(String *string, size_t index, const char ch);
  *
  * Appends the contents of @src to the end of @dest.
  *
- * Since: 1.0
  */
 void str_append(String *dest, String *src);
 
@@ -127,7 +124,6 @@ void str_append(String *dest, String *src);
  * Sets the contents of @dest to be a copy of @src,
  * replacing any existing content in @dest.
  *
- * Since: 1.0
  */
 void str_set(String *dest, const String *src);
 
@@ -143,9 +139,8 @@ void str_set(String *dest, const String *src);
  * If @pos + @length exceeds the length of @src, only the available
  * characters are extracted.
  *
- * Since: 1.0
  */
-void str_substr(String *dest, const String *src, size_t pos, size_t length);
+void str_substr(String *dest, const String *src, size_t pos, size_t length, Arena *arena);
 
 /**
  * str_reverse:
@@ -153,7 +148,6 @@ void str_substr(String *dest, const String *src, size_t pos, size_t length);
  *
  * Reverses the contents of the string in-place.
  *
- * Since: 1.0
  */
 void str_reverse(const String *string);
 
@@ -164,7 +158,6 @@ void str_reverse(const String *string);
  * Converts all characters in the string to lowercase in-place.
  * Only ASCII characters are affected.
  *
- * Since: 1.0
  */
 void str_lower(String *string);
 
@@ -175,7 +168,6 @@ void str_lower(String *string);
  * Converts all characters in the string to uppercase in-place.
  * Only ASCII characters are affected.
  *
- * Since: 1.0
  */
 void str_upper(String *string);
 
@@ -188,7 +180,6 @@ void str_upper(String *string);
  *
  * Returns: the character at @index, or '\0' if @index is out of bounds
  *
- * Since: 1.0
  */
 char str_at(const String *string, size_t index);
 
@@ -203,7 +194,6 @@ char str_at(const String *string, size_t index);
  *          @string1 is found, respectively, to be less than, to match,
  *          or to be greater than @string2
  *
- * Since: 1.0
  */
 int str_compare(const String *string1, const String *string2);
 
@@ -218,7 +208,6 @@ int str_compare(const String *string1, const String *string2);
  *          @string1 is found, respectively, to be less than, to match,
  *          or to be greater than @string2 (ignoring case)
  *
- * Since: 1.0
  */
 int str_icompare(const String *string1, const String *string2);
 
@@ -230,6 +219,7 @@ int str_icompare(const String *string1, const String *string2);
  * an empty state. After calling this function, the string can be
  * reused with str_init() or other functions.
  *
- * Since: 1.0
  */
 void str_free(String *string);
+
+#endif
