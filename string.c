@@ -42,6 +42,9 @@
     } while (0)
 
 
+#define str_expand(string, len, ...) \
+    _str_expand(string, len, (Args){__VA_ARGS__})
+
 static size_t
 nearest_pow(size_t num)
 {
@@ -64,7 +67,7 @@ str_realloc(String *string, size_t size, Arena *arena)
 {
     MUST(string != NULL, "string is NULL in str_realloc");
 
-    if (arena == NULL){
+    if (arena != NULL){
         string->arr = arena_realloc(arena, string->arr, string->size, size);
     } 
     else {
@@ -74,7 +77,7 @@ str_realloc(String *string, size_t size, Arena *arena)
 }
 
 static void
-str_expand(String *string, size_t len, Arena *arena)
+_str_expand(String *string, size_t len, Args args)
 {
     MUST(string != NULL, "string is NULL in str_expand");
 
@@ -90,12 +93,12 @@ str_expand(String *string, size_t len, Arena *arena)
     }
 
     // string->arr = realloc(string->arr, string->capacity);
-    str_realloc(string, string->capacity, arena);
+    str_realloc(string, string->capacity, args.arena);
     MUST(string->arr != NULL, "Error Allocating memory");
 }
 
 void
-str_insert_cstr_at(String *string, size_t pos, const char *cstr, Arena *arena)
+_str_insert_cstr_at(String *string, size_t pos, const char *cstr, Args args)
 {
     size_t insert_len;
     MUST(string != NULL,        "string is NULL in str_insert_cstr_at");
@@ -104,7 +107,7 @@ str_insert_cstr_at(String *string, size_t pos, const char *cstr, Arena *arena)
 
     insert_len = strlen(cstr);
 
-    str_expand(string, insert_len, arena);
+    str_expand(string, insert_len, args.arena);
 
     // Move existing content to make room (if not inserting at end)
     if (pos < string->size) {
@@ -125,27 +128,27 @@ str_insert_cstr_at(String *string, size_t pos, const char *cstr, Arena *arena)
 }
 
 void
-str_append_cstr(String *string, const char *cstr, Arena *arena)
+_str_append_cstr(String *string, const char *cstr, Args args)
 {
     MUST(string != NULL,        "string is NULL in str_insert_cstr");
     MUST(cstr != NULL,          "cstr is NULL in str_init");
-    str_insert_cstr_at(string, string->size, cstr, arena);
+    _str_insert_cstr_at(string, string->size, cstr, args);
 }
 
 void
-str_init(String *string, const char *init_str, Arena *arena)
+_str_init(String *string, const char *init_str, Args args)
 {
     size_t len;
-    MUST(string   != NULL, "string is NULL in str_init");
-    MUST(init_str != NULL, "init_str is NULL in str_init");
+    MUST(string   != NULL, "string is NULL in _str_init");
+    MUST(init_str != NULL, "init_str is NULL in _str_init");
 
     string->size = 0;
     string->capacity = 0;
 
     len = strlen(init_str); 
-    str_expand(string, MAX(len, STR_INIT_CAPACITY), arena);
+    _str_expand(string, MAX(len, STR_INIT_CAPACITY), args);
 
-    str_insert_cstr_at(string, 0, init_str, arena);
+    _str_insert_cstr_at(string, 0, init_str, args);
 }
 
 void

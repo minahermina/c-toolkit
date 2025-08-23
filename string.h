@@ -31,6 +31,11 @@
 #define STR_FOREACH(str, ch) \
     for (size_t _i = 0; _i < (str).size && ((ch) = (str).arr[_i], 1); ++_i)
 
+
+typedef struct {
+    Arena *arena;
+} Args;
+
 typedef struct {
     char *arr;
     size_t size;
@@ -39,7 +44,7 @@ typedef struct {
 
 /* Init a String object with a C string  */
 /**
- * str_init:
+ * _str_init:
  * @string: a #String object
  * @init_str: (nullable): a null-terminated C string to initialize with, or %NULL
  *
@@ -47,7 +52,10 @@ typedef struct {
  * If @init_str is %NULL, the string will be initialized as empty.
  *
  */
-void str_init(String *string, const char *init_str, Arena *arena);
+#define str_init(string, init_str, ...) \
+    _str_init(string, init_str, (Args){ __VA_ARGS__})
+
+void _str_init(String *string, const char *init_str, Args args);
 
 /**
  * str_insert_cstr_at:
@@ -59,7 +67,11 @@ void str_init(String *string, const char *init_str, Arena *arena);
  * All characters at and after @pos will be shifted to the right.
  *
  */
-void str_insert_cstr_at(String *string, size_t pos, const char *init_str, Arena *arena);
+
+#define str_insert_cstr_at(string, pos, init_str, ...) \
+    _str_insert_cstr_at(string, pos, init_str, (Args){__VA_ARGS__})
+
+void _str_insert_cstr_at(String *string, size_t pos, const char *init_str, Args arg);
 
 /**
  * str_set_cstr:
@@ -80,7 +92,11 @@ void str_set_cstr(String *string, const char *cstr);
  * Appends the contents of a C string to the end of the String object.
  *
  */
-void str_append_cstr(String *string, const char *init_str, Arena *arena);
+
+#define str_append_cstr(string, init_str, ...) \
+    _str_append_cstr(string, init_str, (Args){__VA_ARGS__})
+
+void _str_append_cstr(String *string, const char *init_str, Args args);
 
 /**
  * str_insert_at:
