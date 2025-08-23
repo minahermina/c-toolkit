@@ -94,15 +94,15 @@ _str_expand(String *string, size_t len, Args args)
 
     // string->arr = realloc(string->arr, string->capacity);
     str_realloc(string, string->capacity, args.arena);
-    MUST(string->arr != NULL, "Error Allocating memory");
+    MUST(string->arr != NULL, "Error Allocating memory in str_expand");
 }
 
 void
 _str_insert_cstr_at(String *string, size_t pos, const char *cstr, Args args)
 {
     size_t insert_len;
-    MUST(string != NULL,        "string is NULL in str_insert_cstr_at");
-    MUST(cstr != NULL,          "cstr is NULL in str_init");
+    MUST(string != NULL,      "string is NULL in str_insert_cstr_at");
+    MUST(cstr != NULL,        "cstr is NULL in str_insert_cstr_at");
     MUST(pos <= string->size, "pos out of bounds in str_insert_cstr_at");
 
     insert_len = strlen(cstr);
@@ -130,8 +130,8 @@ _str_insert_cstr_at(String *string, size_t pos, const char *cstr, Args args)
 void
 _str_append_cstr(String *string, const char *cstr, Args args)
 {
-    MUST(string != NULL,        "string is NULL in str_insert_cstr");
-    MUST(cstr != NULL,          "cstr is NULL in str_init");
+    MUST(string != NULL, "string is NULL in str_append_cstr");
+    MUST(cstr   != NULL, "cstr is NULL in str_append_cstr");
     _str_insert_cstr_at(string, string->size, cstr, args);
 }
 
@@ -139,8 +139,8 @@ void
 _str_init(String *string, const char *init_str, Args args)
 {
     size_t len;
-    MUST(string   != NULL, "string is NULL in _str_init");
-    MUST(init_str != NULL, "init_str is NULL in _str_init");
+    MUST(string   != NULL, "string is NULL in str_init");
+    MUST(init_str != NULL, "init_str is NULL in str_init");
 
     string->size = 0;
     string->capacity = 0;
@@ -161,8 +161,8 @@ str_insert_at(String *string, size_t pos, String *src)
 void
 str_set_at(String *string, size_t index, const char ch)
 {
-    MUST(string != NULL, "string is NULL in str_set_at");
-    MUST(string->arr != NULL, "string->arr is NULL in str_set_at");
+    MUST(string != NULL,        "string is NULL in str_set_at");
+    MUST(string->arr != NULL,   "string->arr is NULL in str_set_at");
     MUST(index <= string->size, "index is out of bound in str_set_at");
     string->arr[index] = ch;
 }
@@ -177,7 +177,7 @@ str_append(String *dest, String *src)
 void
 str_copy(String *dest, const String *src)
 {
-    MUST(src != NULL, "src is NULL in str_copy");
+    MUST(src != NULL,  "src is NULL in str_copy");
     MUST(dest != NULL, "dest is NULL in str_copy");
 
     dest->size = src->size;
@@ -234,7 +234,7 @@ void
 str_lower(String *string)
 {
     size_t i;
-    MUST(string        != NULL, "string is NULL in str_lower");
+    MUST(string      != NULL, "string is NULL in str_lower");
     MUST(string->arr != NULL, "string->arr  is NULL in str_lower");
 
     for(i = 0; i < string->size; ++i){
