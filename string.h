@@ -43,18 +43,12 @@ typedef struct {
 } String;
 
 void _str_init(String *string, const char *init_str, Args args);
-
 #define str_init(string, init_str, ...) \
     _str_init(string, init_str, (Args){ __VA_ARGS__})
 
 void _str_insert_cstr_at(String *string, size_t pos, const char *init_str, Args arg);
-
 #define str_insert_cstr_at(string, pos, init_str, ...) \
     _str_insert_cstr_at(string, pos, init_str, (Args){__VA_ARGS__})
-
-
-void str_set(String *dest, const String *src);
-void str_set_cstr(String *string, const char *cstr);
 
 void _str_append_cstr(String *string, const char *init_str, Args args);
 
@@ -63,6 +57,16 @@ void _str_append_cstr(String *string, const char *init_str, Args args);
 
 void str_insert_at(String *string, size_t pos, String *src);
 void str_set_at(String *string, size_t index, const char ch);
+
+void _str_copy(String *dest, const String *src, Args args);
+
+#define str_copy(dest, src, ...) \
+    _str_copy(dest, src, (Args){__VA_ARGS__})
+
+void _str_copy_cstr(String *dest, const char *src, Args args);
+#define str_copy_cstr(dest, src, ...) \
+    _str_copy_cstr(dest, src, (Args){__VA_ARGS__})
+
 void str_append(String *dest, String *src);
 void str_substr(String *dest, const String *src, size_t pos, size_t length, Arena *arena);
 void str_reverse(const String *string);

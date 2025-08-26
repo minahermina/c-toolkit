@@ -42,8 +42,7 @@
     } while (0)
 
 
-#define str_expand(string, len, ...) \
-    _str_expand(string, len, (Args){__VA_ARGS__})
+
 
 static size_t
 nearest_pow(size_t num)
@@ -77,9 +76,9 @@ str_realloc(String *string, size_t size, Arena *arena)
 }
 
 static void
-_str_expand(String *string, size_t len, Args args)
+str_resize(String *string, size_t len, Arena *arena)
 {
-    MUST(string != NULL, "string is NULL in str_expand");
+    MUST(string != NULL, "string is NULL in str_resize");
 
     /* No expanding is required. */
     if(len <= string->capacity - string->size){
@@ -92,9 +91,9 @@ _str_expand(String *string, size_t len, Args args)
         string->capacity = string->size + len + 1;
     }
 
-    // string->arr = realloc(string->arr, string->capacity);
-    str_realloc(string, string->capacity, args.arena);
-    MUST(string->arr != NULL, "Error Allocating memory in str_expand");
+    str_realloc(string, string->capacity, arena);
+    string->size = len;
+    MUST(string->arr != NULL, "Error Allocating memory in str_resize");
 }
 
 void
@@ -107,7 +106,7 @@ _str_insert_cstr_at(String *string, size_t pos, const char *cstr, Args args)
 
     insert_len = strlen(cstr);
 
-    str_expand(string, insert_len, args.arena);
+    str_resize(string, string->size + insert_len, args.arena);
 
     // Move existing content to make room (if not inserting at end)
     if (pos < string->size) {
@@ -122,7 +121,6 @@ _str_insert_cstr_at(String *string, size_t pos, const char *cstr, Args args)
         memcpy(string->arr + pos, cstr, insert_len);
     }
 
-    string->size += insert_len;
     string->arr[string->size] = '\0';
 
 }
@@ -138,15 +136,11 @@ _str_append_cstr(String *string, const char *cstr, Args args)
 void
 _str_init(String *string, const char *init_str, Args args)
 {
-    size_t len;
     MUST(string   != NULL, "string is NULL in str_init");
     MUST(init_str != NULL, "init_str is NULL in str_init");
 
     string->size = 0;
     string->capacity = 0;
-
-    len = strlen(init_str); 
-    _str_expand(string, MAX(len, STR_INIT_CAPACITY), args);
 
     _str_insert_cstr_at(string, 0, init_str, args);
 }
@@ -175,21 +169,30 @@ str_append(String *dest, String *src)
 }
 
 void
-str_copy(String *dest, const String *src)
+_str_copy(String *dest, const String *src, Args args)
 {
     MUST(src != NULL,  "src is NULL in str_copy");
     MUST(dest != NULL, "dest is NULL in str_copy");
 
-    dest->size = src->size;
-    dest->capacity = src->capacity;
-
-    dest->arr = realloc(dest->arr, dest->capacity);
-
+    str_resize(dest, src->size, args.arena);
     MUST(dest->arr != NULL, "Error Allocating memory");
 
     memcpy(dest->arr, src->arr, dest->size);
 }
 
+void
+_str_copy_cstr(String *dest, const char *src, Args args)
+{
+    size_t src_len;
+    MUST(src != NULL,  "src is NULL in str_copy_cstr");
+    MUST(dest != NULL, "dest is NULL in str_copy_cstr");
+
+    src_len = strlen(src);
+    str_resize(dest, src_len, args.arena);
+    MUST(dest->arr != NULL, "Error Allocating memory");
+
+    memcpy(dest->arr, src, dest->size);
+}
 
 void
 str_substr(String *dest, const String *src, size_t pos, size_t length, Arena *arena)
@@ -204,15 +207,13 @@ str_substr(String *dest, const String *src, size_t pos, size_t length, Arena *ar
 
     length = MIN(length, max_length);
 
-    length = (dest->capacity > length ? length:STR_INIT_CAPACITY);
-    str_expand(dest, length, arena);
+    length = (dest->capacity > length ? length : STR_INIT_CAPACITY);
+    str_resize(dest, length, arena);
     dest->size = length;
 
     memcpy(dest->arr, src->arr + pos, length);
     dest->arr[dest->size] = '\0';
 }
-
-
 
 void
 str_reverse(const String *string)
