@@ -246,6 +246,74 @@ _str_substr(String *dest, const String *src, size_t pos, size_t length, Args arg
     dest->arr[dest->size] = '\0';
 }
 
+static int
+_strcmp(const char *cstr1, size_t len1, const char *cstr2, size_t len2)
+{
+    size_t i = 0;
+    while ((i < len1 && i < len2) && (cstr1[i] == cstr2[i])) {
+        i++;
+    }
+
+    if (i == len1 && i == len2)
+        return 0;
+
+    if (i == len1) return -1;
+    if (i == len2) return 1;
+
+    return (cstr1[i] - cstr2[i]);
+}
+
+static int
+_stricmp(const char *cstr1, size_t len1, const char *cstr2, size_t len2)
+{
+    size_t i = 0;
+    while ((i < len1 && i < len2) && (tolower(cstr1[i]) == tolower(cstr2[i]))) {
+        i++;
+    }
+
+    if (i == len1 && i == len2)
+        return 0;
+
+    if (i == len1) return -1;
+    if (i == len2) return 1;
+
+    return (tolower(cstr1[i]) - tolower(cstr2[i]));
+}
+
+int
+str_find_cstr(const String *string, const char *cstr)
+{
+    size_t idx = 0;
+    MUST(string != NULL,      "string is NULL in str_find_cstr");
+    MUST(string->arr != NULL, "string->arr is NULL in str_find_cstr");
+    MUST(cstr  != NULL,       "cstr is NULL in str_find_cstr");
+
+    size_t len = strlen(cstr);
+
+    /* string to find(cstr) is bigger than string*/
+    if(len > string->size){
+        return -1;
+    }
+
+    while(idx <= (string->size - len)){
+        if(_strcmp(string->arr + idx, len, cstr, len) == 0){
+            return idx;
+        }
+        idx++;
+    }
+    return -1;
+}
+
+int
+str_find(const String *string1, const String *string2)
+{
+    MUST(string1 != NULL,      "string1 is NULL in str_find");
+    MUST(string1->arr != NULL, "string1->arr is NULL in str_find");
+    MUST(string2 != NULL,      "string2 is NULL in str_find");
+    MUST(string2->arr != NULL, "string2->arr is NULL in str_find");
+    return str_find_cstr(string1, string2->arr);
+}
+
 void
 str_reverse(const String *string)
 {
@@ -299,39 +367,23 @@ str_at(const String *string, size_t index)
 int
 str_compare(const String *string1, const String *string2)
 {
-    char *p, *q;
     MUST(string1 != NULL, "string1 is NULL in str_compare");
     MUST(string2 != NULL, "string2 is NULL in str_compare");
     MUST(string1->arr != NULL, "string1->arr  is NULL in str_compare");
     MUST(string2->arr != NULL, "string2->arr is NULL in str_compare");
 
-    p = string1->arr;
-    q = string2->arr;
-    while(*p == *q && *p){
-        p++;
-        q++;
-    }
-
-    return p[0] - q[0];
+    return _strcmp(string1->arr, string1->size, string2->arr, string2->size);
 }
 
 int
 str_icompare(const String *string1, const String *string2)
 {
-    char *p, *q;
     MUST(string1 != NULL, "string1 is NULL in str_compare");
     MUST(string2 != NULL, "string2 is NULL in str_compare");
     MUST(string1->arr != NULL, "string1->arr  is NULL in str_compare");
     MUST(string2->arr != NULL, "string2->arr is NULL in str_compare");
 
-    p = string1->arr;
-    q = string2->arr;
-    while(tolower(*p) == tolower(*q) && *p){
-        p++;
-        q++;
-    }
-
-    return tolower(p[0]) - tolower(q[0]);
+    return _stricmp(string1->arr, string1->size, string2->arr, string2->size);
 }
 
 

@@ -79,6 +79,10 @@ void _str_substr(String *dest, const String *src, size_t pos, size_t length, Arg
 #define str_substr(dest, src, pos, length, ...) \
     _str_substr(dest, src, pos, length, (Args){__VA_ARGS__})
 
+int str_find_cstr(const String *string, const char *cstr);
+
+int str_find(const String *string1, const String *string2);
+int str_find_ch(const String *string, const char ch);
 void str_reverse(const String *string);
 void str_lower(String *string);
 void str_upper(String *string);
