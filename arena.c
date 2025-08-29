@@ -186,9 +186,11 @@ arena_realloc(Arena *arena, void *old_ptr, size_t old_size, size_t new_size)
 
     new_ptr = (unsigned char*)arena__alloc__unlocked(arena, new_size);
 
-    unsigned char * old_ptr_char = (unsigned char*)old_ptr;
-    for(i = 0; i < old_size; ++i){ /*Assuming no overlap happens*/
-        new_ptr[i] = old_ptr_char[i];
+    if(old_ptr != NULL){
+        unsigned char * old_ptr_char = (unsigned char*)old_ptr;
+        for(i = 0; i < old_size; ++i){ /*Assuming no overlap happens*/
+            new_ptr[i] = old_ptr_char[i];
+        }
     }
 
     /* Unlocking the mutex */
