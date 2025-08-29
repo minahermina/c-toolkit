@@ -42,33 +42,43 @@ typedef struct {
     size_t capacity;
 } String;
 
-void _str_init(String *string, const char *init_str, Args args);
-#define str_init(string, init_str, ...) \
-    _str_init(string, init_str, (Args){ __VA_ARGS__})
 
-void _str_insert_cstr_at(String *string, size_t pos, const char *init_str, Args arg);
-#define str_insert_cstr_at(string, pos, init_str, ...) \
-    _str_insert_cstr_at(string, pos, init_str, (Args){__VA_ARGS__})
+void _str_insert_cstr_at(String *string, const char *cstr, size_t pos, Args args);
+#define str_insert_cstr_at(string, cstr, pos, ...) \
+    _str_insert_cstr_at(string, cstr, pos, (Args){__VA_ARGS__})
 
-void _str_append_cstr(String *string, const char *init_str, Args args);
+void _str_insert_cstr_n_at(String *string, const char *cstr, size_t n, size_t pos, Args args);
+#define str_insert_cstr_n_at(string, cstr, n, pos, ...) \
+    _str_insert_cstr_n_at(string, cstr, n, pos, (Args){__VA_ARGS__})
 
-#define str_append_cstr(string, init_str, ...) \
-    _str_append_cstr(string, init_str, (Args){__VA_ARGS__})
+void _str_append_cstr(String *string, const char *cstr, Args args);
+#define str_append_cstr(string, cstr, ...) \
+    _str_append_cstr(string, cstr, (Args){__VA_ARGS__})
+
+void _str_append_cstr_n(String *string, const char *cstr, size_t n, Args args);
+#define str_append_cstr_n(string, cstr, n, ...) \
+    _str_append_cstr_n(string, cstr, n, (Args){__VA_ARGS__})
 
 void str_insert_at(String *string, size_t pos, String *src);
 void str_set_at(String *string, size_t index, const char ch);
 
-void _str_copy(String *dest, const String *src, Args args);
+void _str_set(String *dest, const String *src, Args args);
 
-#define str_copy(dest, src, ...) \
-    _str_copy(dest, src, (Args){__VA_ARGS__})
+#define str_set(dest, src, ...) \
+    _str_set(dest, src, (Args){__VA_ARGS__})
 
-void _str_copy_cstr(String *dest, const char *src, Args args);
-#define str_copy_cstr(dest, src, ...) \
-    _str_copy_cstr(dest, src, (Args){__VA_ARGS__})
+void _str_set_cstr(String *dest, const char *src, Args args);
+#define str_set_cstr(dest, src, ...) \
+    _str_set_cstr(dest, src, (Args){__VA_ARGS__})
 
-void str_append(String *dest, String *src);
-void str_substr(String *dest, const String *src, size_t pos, size_t length, Arena *arena);
+void _str_append(String *dest, const String *src, Args args);
+#define str_append(dest, src, ...) \
+    _str_append(dest, src, (Args){__VA_ARGS__})
+
+void _str_substr(String *dest, const String *src, size_t pos, size_t length, Args args);
+#define str_substr(dest, src, pos, length, ...) \
+    _str_substr(dest, src, pos, length, (Args){__VA_ARGS__})
+
 void str_reverse(const String *string);
 void str_lower(String *string);
 void str_upper(String *string);

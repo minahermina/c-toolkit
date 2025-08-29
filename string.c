@@ -61,18 +61,22 @@ nearest_pow(size_t num)
     return num + 1;
 }
 
+static void *
+_realloc(void *ptr, size_t oldsize, size_t newsize, Arena *arena)
+{
+    if (arena != NULL){
+        return arena_realloc(arena, ptr, oldsize, newsize);
+    } 
+    else {
+        return realloc(ptr, newsize);
+    }
+}
+
 static void 
 str_realloc(String *string, size_t size, Arena *arena)
 {
     MUST(string != NULL, "string is NULL in str_realloc");
-
-    if (arena != NULL){
-        string->arr = arena_realloc(arena, string->arr, string->size, size);
-    } 
-    else {
-        string->arr = realloc(string->arr, size);
-    }
-
+    string->arr = _realloc(string->arr, string->size, size, arena);
 }
 
 static void
@@ -97,14 +101,28 @@ str_resize(String *string, size_t len, Arena *arena)
 }
 
 void
-_str_insert_cstr_at(String *string, size_t pos, const char *cstr, Args args)
+_str_insert_cstr_at(String *string, const char *cstr, size_t pos, Args args)
 {
-    size_t insert_len;
     MUST(string != NULL,      "string is NULL in str_insert_cstr_at");
     MUST(cstr != NULL,        "cstr is NULL in str_insert_cstr_at");
     MUST(pos <= string->size, "pos out of bounds in str_insert_cstr_at");
+    _str_insert_cstr_n_at(string, cstr, strlen(cstr), pos, args);
+}
 
-    insert_len = strlen(cstr);
+
+void
+_str_insert_cstr_n_at(String *string, const char *cstr, size_t n, size_t pos, Args args)
+{
+    size_t insert_len;
+    MUST(string != NULL,                  "string is NULL in str_insert_cstr_at");
+    MUST(cstr != NULL,                    "cstr is NULL in str_insert_cstr_at");
+    MUST(pos <= string->size,             "pos out of bounds in str_insert_cstr_at");
+    MUST((n <= strlen(cstr)) && (n >= 0), "0 <= n <= strlen(cstr) is not satisfied in str_insert_cstr_at");
+
+    if(n == 0){
+        return;
+    }
+    insert_len = n;
 
     str_resize(string, string->size + insert_len, args.arena);
 
@@ -130,19 +148,16 @@ _str_append_cstr(String *string, const char *cstr, Args args)
 {
     MUST(string != NULL, "string is NULL in str_append_cstr");
     MUST(cstr   != NULL, "cstr is NULL in str_append_cstr");
-    _str_insert_cstr_at(string, string->size, cstr, args);
+    _str_insert_cstr_at(string, cstr, string->size, args);
 }
 
 void
-_str_init(String *string, const char *init_str, Args args)
+_str_append_cstr_n(String *string, const char *cstr, size_t n, Args args)
 {
-    MUST(string   != NULL, "string is NULL in str_init");
-    MUST(init_str != NULL, "init_str is NULL in str_init");
 
-    string->size = 0;
-    string->capacity = 0;
-
-    _str_insert_cstr_at(string, 0, init_str, args);
+    MUST(string != NULL, "string is NULL in str_append_cstr");
+    MUST(cstr   != NULL, "cstr is NULL in str_append_cstr");
+    _str_insert_cstr_n_at(string, cstr, n, string->size, args);
 }
 
 void
@@ -162,17 +177,33 @@ str_set_at(String *string, size_t index, const char ch)
 }
 
 void
-str_append(String *dest, String *src)
+_str_append(String *dest, const String *src, Args args)
 {
+    char *ptr = NULL;
+    MUST(dest != NULL,      "dest is NULL in str_append");
+    MUST(dest->arr != NULL, "dest->arr is NULL in str_append");
+    MUST(src != NULL,       "src is NULL in str_append");
+    MUST(src->arr != NULL,  "src->arr is NULL in str_append");
 
+    if(dest == src){
+        ptr = _realloc(ptr, dest->size, src->size, args.arena);
+        memcpy(ptr, src->arr, src->size);
+    }
+    else{
+        ptr = src->arr;
+    }
+    _str_append_cstr(dest, ptr, args);
+    if(dest == src && args.arena == NULL) 
+        free(ptr);
 
+    // printf("%p\n", ptr);
 }
 
-void
-_str_copy(String *dest, const String *src, Args args)
+void 
+_str_set(String *dest, const String *src, Args args)
 {
-    MUST(src != NULL,  "src is NULL in str_copy");
-    MUST(dest != NULL, "dest is NULL in str_copy");
+    MUST(src != NULL,  "src is NULL in str_set");
+    MUST(dest != NULL, "dest is NULL in str_set");
 
     str_resize(dest, src->size, args.arena);
     MUST(dest->arr != NULL, "Error Allocating memory");
@@ -181,11 +212,11 @@ _str_copy(String *dest, const String *src, Args args)
 }
 
 void
-_str_copy_cstr(String *dest, const char *src, Args args)
+_str_set_cstr(String *dest, const char *src, Args args)
 {
     size_t src_len;
-    MUST(src != NULL,  "src is NULL in str_copy_cstr");
-    MUST(dest != NULL, "dest is NULL in str_copy_cstr");
+    MUST(src != NULL,  "src is NULL in str_set_cstr");
+    MUST(dest != NULL, "dest is NULL in str_set_cstr");
 
     src_len = strlen(src);
     str_resize(dest, src_len, args.arena);
@@ -195,7 +226,7 @@ _str_copy_cstr(String *dest, const char *src, Args args)
 }
 
 void
-str_substr(String *dest, const String *src, size_t pos, size_t length, Arena *arena)
+_str_substr(String *dest, const String *src, size_t pos, size_t length, Args args)
 {
     size_t max_length;
     MUST(dest != NULL, "src is NULL in str_substr");
@@ -208,7 +239,7 @@ str_substr(String *dest, const String *src, size_t pos, size_t length, Arena *ar
     length = MIN(length, max_length);
 
     length = (dest->capacity > length ? length : STR_INIT_CAPACITY);
-    str_resize(dest, length, arena);
+    str_resize(dest, length, args.arena);
     dest->size = length;
 
     memcpy(dest->arr, src->arr + pos, length);
