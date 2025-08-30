@@ -114,10 +114,10 @@ void
 _str_insert_cstr_n_at(String *string, const char *cstr, size_t n, size_t pos, Args args)
 {
     size_t insert_len;
-    MUST(string != NULL,                  "string is NULL in str_insert_cstr_at");
-    MUST(cstr != NULL,                    "cstr is NULL in str_insert_cstr_at");
-    MUST(pos <= string->size,             "pos out of bounds in str_insert_cstr_at");
-    MUST((n <= strlen(cstr)) && (n >= 0), "0 <= n <= strlen(cstr) is not satisfied in str_insert_cstr_at");
+    MUST(string != NULL,                  "string is NULL in str_insert_cstr_n_at");
+    MUST(cstr != NULL,                    "cstr is NULL in str_insert_cstr_n_at");
+    MUST(pos <= string->size,             "pos out of bounds in str_insert_cstr_n_at");
+    MUST((n <= strlen(cstr)) && (n >= 0), "0 <= n <= strlen(cstr) is not satisfied in str_insert_cstr_n_at");
 
     if(n == 0){
         return;
@@ -155,8 +155,8 @@ void
 _str_append_cstr_n(String *string, const char *cstr, size_t n, Args args)
 {
 
-    MUST(string != NULL, "string is NULL in str_append_cstr");
-    MUST(cstr   != NULL, "cstr is NULL in str_append_cstr");
+    MUST(string != NULL, "string is NULL in str_append_cstr_n");
+    MUST(cstr   != NULL, "cstr is NULL in str_append_cstr_n");
     _str_insert_cstr_n_at(string, cstr, n, string->size, args);
 }
 
@@ -172,7 +172,7 @@ str_set_at(String *string, size_t index, const char ch)
 {
     MUST(string != NULL,        "string is NULL in str_set_at");
     MUST(string->arr != NULL,   "string->arr is NULL in str_set_at");
-    MUST(index <= string->size, "index is out of bound in str_set_at");
+    MUST(index < string->size, "index is out of bound in str_set_at");
     string->arr[index] = ch;
 }
 
@@ -192,11 +192,11 @@ _str_append(String *dest, const String *src, Args args)
     else{
         ptr = src->arr;
     }
+
     _str_append_cstr(dest, ptr, args);
+
     if(dest == src && args.arena == NULL) 
         free(ptr);
-
-    // printf("%p\n", ptr);
 }
 
 void 
@@ -206,7 +206,6 @@ _str_set(String *dest, const String *src, Args args)
     MUST(dest != NULL, "dest is NULL in str_set");
 
     str_resize(dest, src->size, args.arena);
-    MUST(dest->arr != NULL, "Error Allocating memory");
 
     memcpy(dest->arr, src->arr, dest->size);
 }
@@ -378,10 +377,10 @@ str_compare(const String *string1, const String *string2)
 int
 str_icompare(const String *string1, const String *string2)
 {
-    MUST(string1 != NULL, "string1 is NULL in str_compare");
-    MUST(string2 != NULL, "string2 is NULL in str_compare");
-    MUST(string1->arr != NULL, "string1->arr  is NULL in str_compare");
-    MUST(string2->arr != NULL, "string2->arr is NULL in str_compare");
+    MUST(string1 != NULL, "string1 is NULL in str_icompare");
+    MUST(string2 != NULL, "string2 is NULL in str_icompare");
+    MUST(string1->arr != NULL, "string1->arr  is NULL in str_icompare");
+    MUST(string2->arr != NULL, "string2->arr is NULL in str_icompare");
 
     return _stricmp(string1->arr, string1->size, string2->arr, string2->size);
 }
