@@ -25,8 +25,8 @@
 #include <pthread.h>
 #include "arena.h"
 
-Region*
-arena__new__region(size_t size)
+static Region*
+arena_new_region(size_t size)
 {
     Region *region;
     void *ptr;
@@ -44,8 +44,8 @@ arena__new__region(size_t size)
     return region;
 }
 
-size_t
-arena__align__size(size_t size)
+static size_t
+arena_align_size(size_t size)
 {
     size_t size_page_aligned, page_size, region_size, size_bytes;
     region_size = ARENA_REGION_SIZE;
@@ -55,16 +55,16 @@ arena__align__size(size_t size)
     return size_page_aligned;
 }
 
-void
-arena__append__region(Arena *arena, size_t size)
+static void
+arena_append_region(Arena *arena, size_t size)
 {
     Region *region;
     if(size < (size_t)ARENA_REGION_DEFAULT_CAPACITY){
         size = ARENA_REGION_DEFAULT_CAPACITY;
     } else{
-        size = arena__align__size(size);
+        size = arena_align_size(size);
     }
-    region = arena__new__region(size);
+    region = arena_new_region(size);
     arena->tail->next = region;
     arena->tail = region;
 }
@@ -75,8 +75,8 @@ arena_init(Arena *arena, size_t size)
 {
     Region *region;
     int ret;
-    size = arena__align__size(size);
-    region = arena__new__region(size);
+    size = arena_align_size(size);
+    region = arena_new_region(size);
 
     arena->head = region;
     arena->tail = region;
@@ -86,8 +86,8 @@ arena_init(Arena *arena, size_t size)
     assert(ret == 0);
 }
 
-void*
-arena__alloc__unlocked(Arena *arena, size_t size)
+static void*
+arena_alloc_unlocked(Arena *arena, size_t size)
 {
     Region *curr;
     void *ptr;
@@ -106,7 +106,7 @@ arena__alloc__unlocked(Arena *arena, size_t size)
     }
 
     // Allocate new region as no space available
-    arena__append__region(arena, size);
+    arena_append_region(arena, size);
     curr = arena->tail;
     ptr = (void*)(curr->bytes + curr->count);
 
@@ -127,7 +127,7 @@ arena_alloc(Arena *arena, size_t size)
     ret = pthread_mutex_lock(&arena->mutex);
     assert(ret == 0);
 
-    ptr = arena__alloc__unlocked(arena, size);
+    ptr = arena_alloc_unlocked(arena, size);
 
     /* Unlocking the mutex */
     ret = pthread_mutex_unlock(&arena->mutex);
@@ -184,7 +184,7 @@ arena_realloc(Arena *arena, void *old_ptr, size_t old_size, size_t new_size)
     ret = pthread_mutex_lock(&arena->mutex);
     assert(ret == 0);
 
-    new_ptr = (unsigned char*)arena__alloc__unlocked(arena, new_size);
+    new_ptr = (unsigned char*)arena_alloc_unlocked(arena, new_size);
 
     if(old_ptr != NULL){
         unsigned char * old_ptr_char = (unsigned char*)old_ptr;
@@ -199,8 +199,8 @@ arena_realloc(Arena *arena, void *old_ptr, size_t old_size, size_t new_size)
     return (void*) new_ptr;
 }
 
-void
-arena__region__dump(Region* region)
+static void
+arena_region_dump(Region* region)
 {
     assert(region != NULL);
     printf("Address:    %p\n", (void*)region);
@@ -223,7 +223,7 @@ arena_dump(Arena *arena)
     printf("=============================\n");
     for(curr = arena->head; curr != NULL; curr = curr->next ){
         printf("===> Region %zu:\n", cnt);
-        arena__region__dump(curr);
+        arena_region_dump(curr);
         cnt++;
     }
     printf("=============================\n");
@@ -250,8 +250,8 @@ arena_reset(Arena *arena){
     assert(ret == 0);
 }
 
-void
-arena__free__region(Region* region)
+static void
+arena_free_region(Region* region)
 {
     assert(region != NULL);
     size_t size_bytes = ARENA_REGION_SIZE + region->capacity;
@@ -268,7 +268,7 @@ arena_destroy(Arena *arena)
     for(curr = arena->head; curr != NULL;){
         temp = curr;
         curr = curr->next;
-        arena__free__region(temp);
+        arena_free_region(temp);
     }
     arena->head = NULL;
     arena->tail = NULL;
