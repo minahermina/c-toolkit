@@ -117,7 +117,7 @@ _str_insert_cstr_n_at(String *string, const char *cstr, size_t n, size_t pos, Ar
     MUST(string != NULL,                  "string is NULL in str_insert_cstr_n_at");
     MUST(cstr != NULL,                    "cstr is NULL in str_insert_cstr_n_at");
     MUST(pos <= string->size,             "pos out of bounds in str_insert_cstr_n_at");
-    MUST((n <= strlen(cstr)) && (n >= 0), "0 <= n <= strlen(cstr) is not satisfied in str_insert_cstr_n_at");
+    MUST((n <= strlen(cstr)) && (n > 0 && n <= strlen(cstr)), "(n > 0 && n <= strlen(cstr)) is not satisfied in str_insert_cstr_n_at");
 
     if(n == 0){
         return;
@@ -211,17 +211,17 @@ _str_set(String *dest, const String *src, Args args)
 }
 
 void
-_str_set_cstr(String *dest, const char *src, Args args)
+_str_set_cstr(String *dest, const char *cstr, Args args)
 {
-    size_t src_len;
-    MUST(src != NULL,  "src is NULL in str_set_cstr");
+    size_t cstr_len;
+    MUST(cstr != NULL,  "cstr is NULL in str_set_cstr");
     MUST(dest != NULL, "dest is NULL in str_set_cstr");
 
-    src_len = strlen(src);
-    str_resize(dest, src_len, args.arena);
+    cstr_len = strlen(cstr);
+    str_resize(dest, cstr_len, args.arena);
     MUST(dest->arr != NULL, "Error Allocating memory");
 
-    memcpy(dest->arr, src, dest->size);
+    memcpy(dest->arr, cstr, dest->size);
 }
 
 void
