@@ -387,6 +387,51 @@ str_icompare(const String *string1, const String *string2)
 
 
 void
+str_trim_left(String *string)
+{
+    size_t i = 0, newsize = 0;
+    MUST(string != NULL,      "string is NULL in str_trim_left");
+    MUST(string->arr != NULL, "string->arr is NULL in str_trim_left");
+
+    while (i < string->size && string->arr[i] == ' ') {
+        i++;
+    }
+
+    if (i > 0) {
+        newsize = string->size - i;
+        // shift left
+        memmove(string->arr, string->arr + i, newsize);
+        string->size = newsize;
+        string->arr[newsize] = '\0';  // keep null terminator
+    }
+}
+
+
+void
+str_trim_right(String *string)
+{
+    size_t i = 0;
+    MUST(string != NULL,      "string is NULL in str_trim_right");
+    MUST(string->arr != NULL, "string->arr is NULL in str_trim_right");
+
+    i = string->size;
+    while(string->arr[i - 1] == ' '){
+        i--;
+    }
+    string->size = i;
+    string->arr[i] = '\0';
+}
+
+void
+str_trim(String *string)
+{
+    MUST(string != NULL,      "string is NULL in str_trim");
+    MUST(string->arr != NULL, "string->arr is NULL in str_trim");
+    str_trim_right(string);
+    str_trim_left(string);
+}
+
+void
 str_free(String *string)
 {
     MUST(string != NULL, "string is NULL in str_free");
