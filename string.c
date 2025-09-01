@@ -66,7 +66,7 @@ _realloc(void *ptr, size_t oldsize, size_t newsize, Arena *arena)
 {
     if (arena != NULL){
         return arena_realloc(arena, ptr, oldsize, newsize);
-    } 
+    }
     else {
         return realloc(ptr, newsize);
     }
@@ -89,7 +89,7 @@ str_resize(String *string, size_t len, Arena *arena)
         return;
     }
 
-    string->capacity = nearest_pow(string->size + len + 1);
+    string->capacity = nearest_pow(len + 1);
     /* Overflow happens */
     if(string->capacity == 0){
         string->capacity = string->size + len + 1;
@@ -113,7 +113,6 @@ _str_insert_cstr_at(String *string, const char *cstr, size_t pos, Args args)
 void
 _str_insert_cstr_n_at(String *string, const char *cstr, size_t n, size_t pos, Args args)
 {
-    size_t insert_len;
     MUST(string != NULL,                  "string is NULL in str_insert_cstr_n_at");
     MUST(cstr != NULL,                    "cstr is NULL in str_insert_cstr_n_at");
     MUST(pos <= string->size,             "pos out of bounds in str_insert_cstr_n_at");
@@ -122,22 +121,18 @@ _str_insert_cstr_n_at(String *string, const char *cstr, size_t n, size_t pos, Ar
     if(n == 0){
         return;
     }
-    insert_len = n;
 
-    str_resize(string, string->size + insert_len, args.arena);
+    size_t oldsize = string->size;
+    str_resize(string, string->size + n, args.arena);
 
     // Move existing content to make room (if not inserting at end)
     if (pos < string->size) {
-        memmove(string->arr + pos + insert_len,
+        memmove(string->arr + pos + n,
                 string->arr + pos,
-                string->size - pos);
+                oldsize - pos);
     }
 
-    if (insert_len == 1) {
-        string->arr[pos] = *cstr;
-    } else {
-        memcpy(string->arr + pos, cstr, insert_len);
-    }
+    memcpy(string->arr + pos, cstr, n);
 
     string->arr[string->size] = '\0';
 
@@ -160,11 +155,11 @@ _str_append_cstr_n(String *string, const char *cstr, size_t n, Args args)
     _str_insert_cstr_n_at(string, cstr, n, string->size, args);
 }
 
-void
+/* void
 str_insert_at(String *string, size_t pos, String *src)
 {
 
-}
+} */
 
 
 void
@@ -440,4 +435,5 @@ str_free(String *string)
     string->size = 0;
     string->capacity = 0;
     string->arr = NULL;
+    free(string->arr);
 }
