@@ -1,3 +1,5 @@
 commit
 build/
 main
+*.o
+*.mk
