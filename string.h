@@ -21,7 +21,6 @@
 #ifndef STRING_LIB
 #define STRING_LIB
 
-#include <stdio.h>
 #include "arena.h"
 
 #define STR_INIT_CAPACITY 63
