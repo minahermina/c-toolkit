@@ -177,8 +177,9 @@ arena_realloc(Arena *arena, void *old_ptr, size_t old_size, size_t new_size)
     int ret;
     assert(arena != NULL);
 
-    if(new_size < old_size)
+    if(new_size <= old_size){
         return old_ptr;
+    }
 
     /* Locking the mutex */
     ret = pthread_mutex_lock(&arena->mutex);
