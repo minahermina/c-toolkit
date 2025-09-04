@@ -82,6 +82,7 @@ str_realloc(String *string, size_t size, Arena *arena)
 static void
 str_resize(String *string, size_t len, Arena *arena)
 {
+    size_t capacity;
     MUST(string != NULL, "string is NULL in str_resize");
 
     /* No expanding is required. */
@@ -89,15 +90,17 @@ str_resize(String *string, size_t len, Arena *arena)
         return;
     }
 
-    string->capacity = nearest_pow(len + 1);
+    capacity = nearest_pow(len + 1);
     /* Overflow happens */
-    if(string->capacity == 0){
-        string->capacity = string->size + len + 1;
+    if(capacity == 0){
+        capacity = string->size + len + 1;
     }
 
-    str_realloc(string, string->capacity, arena);
-    string->size = len;
+    str_realloc(string, capacity, arena);
     MUST(string->arr != NULL, "Error Allocating memory in str_resize");
+
+    string->capacity = capacity;
+    string->size = len;
 }
 
 void
