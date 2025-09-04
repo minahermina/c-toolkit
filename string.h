@@ -102,4 +102,8 @@ void str_clear(String *string);
 */
 void str_free(String *string);
 
+int _str_from_file(String *string, const char *filename, Args args);
+#define str_from_file(string, filename, ...) \
+    _str_from_file(string, filename, (Args){__VA_ARGS__})
+
 #endif
