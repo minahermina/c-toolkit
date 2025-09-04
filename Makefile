@@ -13,7 +13,7 @@ MAIN_OBJ = main.o
 HEADERS = arena.h string.h
 TARGET = main
 
-CPPFLAGS += `if [ "\`uname -s\`" = "Linux" ]; then echo "-fsanitize=address"; fi`
+CPPFLAGS += $(shell if echo "$(CC)" | grep -q clang && [ "`uname -s`" = "Linux" ]; then echo "-fsanitize=address"; fi)
 
 all: $(TARGET)
 
