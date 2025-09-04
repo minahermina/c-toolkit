@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <ctype.h>
 #include <assert.h>
 #include <errno.h>
@@ -43,8 +44,13 @@
         } \
     } while (0)
 
-
-
+size_t
+_strlen(const char *str)
+{
+    const char *s;
+    for (s = str; *s; ++s);
+    return (s - str);
+}
 
 static size_t
 nearest_pow(size_t num)
@@ -111,7 +117,7 @@ _str_insert_cstr_at(String *string, const char *cstr, size_t pos, Args args)
     MUST(string != NULL,      "string is NULL in str_insert_cstr_at");
     MUST(cstr != NULL,        "cstr is NULL in str_insert_cstr_at");
     MUST(pos <= string->size, "pos out of bounds in str_insert_cstr_at");
-    _str_insert_cstr_n_at(string, cstr, strlen(cstr), pos, args);
+    _str_insert_cstr_n_at(string, cstr, _strlen(cstr), pos, args);
 }
 
 
@@ -121,7 +127,7 @@ _str_insert_cstr_n_at(String *string, const char *cstr, size_t n, size_t pos, Ar
     MUST(string != NULL,                  "string is NULL in str_insert_cstr_n_at");
     MUST(cstr != NULL,                    "cstr is NULL in str_insert_cstr_n_at");
     MUST(pos <= string->size,             "pos out of bounds in str_insert_cstr_n_at");
-    MUST((n <= strlen(cstr)) && (n > 0 && n <= strlen(cstr)), "(n > 0 && n <= strlen(cstr)) is not satisfied in str_insert_cstr_n_at");
+    MUST((n <= _strlen(cstr)) && (n > 0 && n <= _strlen(cstr)), "(n > 0 && n <= _strlen(cstr)) is not satisfied in str_insert_cstr_n_at");
 
     if(n == 0){
         return;
@@ -215,7 +221,7 @@ _str_set_cstr(String *dest, const char *cstr, Args args)
     MUST(cstr != NULL,  "cstr is NULL in str_set_cstr");
     MUST(dest != NULL, "dest is NULL in str_set_cstr");
 
-    str_resize(dest, strlen(cstr), args.arena);
+    str_resize(dest, _strlen(cstr), args.arena);
     MUST(dest->arr != NULL, "Error Allocating memory");
 
     memcpy(dest->arr, cstr, dest->size);
@@ -284,7 +290,7 @@ str_find_cstr(const String *string, const char *cstr)
     MUST(string->arr != NULL, "string->arr is NULL in str_find_cstr");
     MUST(cstr  != NULL,       "cstr is NULL in str_find_cstr");
 
-    size_t len = strlen(cstr);
+    size_t len = _strlen(cstr);
 
     /* string to find(cstr) is bigger than string*/
     if(len > string->size){
