@@ -40,7 +40,6 @@ string: $(STRING_OBJ)
 	@echo "==> String module compiled successfully"
 
 run: $(TARGET)
-	@echo "==> Running: ./$(TARGET)"
 	./$(TARGET)
 
 clean:
