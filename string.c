@@ -126,7 +126,7 @@ _str_insert_cstr_n_at(String *string, const char *cstr, size_t n, size_t pos, Ar
     }
 
     size_t oldsize = string->size;
-    str_resize(string, string->size + n, args.arena);
+    str_resize(string, oldsize + n, args.arena);
 
     // Move existing content to make room (if not inserting at end)
     if (pos < string->size) {
@@ -138,7 +138,6 @@ _str_insert_cstr_n_at(String *string, const char *cstr, size_t n, size_t pos, Ar
     memcpy(string->arr + pos, cstr, n);
 
     string->arr[string->size] = '\0';
-
 }
 
 void
@@ -211,12 +210,10 @@ _str_set(String *dest, const String *src, Args args)
 void
 _str_set_cstr(String *dest, const char *cstr, Args args)
 {
-    size_t cstr_len;
     MUST(cstr != NULL,  "cstr is NULL in str_set_cstr");
     MUST(dest != NULL, "dest is NULL in str_set_cstr");
 
-    cstr_len = strlen(cstr);
-    str_resize(dest, cstr_len, args.arena);
+    str_resize(dest, strlen(cstr), args.arena);
     MUST(dest->arr != NULL, "Error Allocating memory");
 
     memcpy(dest->arr, cstr, dest->size);
