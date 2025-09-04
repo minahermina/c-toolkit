@@ -76,7 +76,7 @@ static void
 str_realloc(String *string, size_t size, Arena *arena)
 {
     MUST(string != NULL, "string is NULL in str_realloc");
-    string->arr = _realloc(string->arr, string->size, size, arena);
+    string->arr = _realloc(string->arr, string->capacity, size, arena);
 }
 
 static void
