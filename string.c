@@ -426,6 +426,40 @@ str_trim_right(String *string)
 }
 
 void
+str_remove_cstr(String *string, const char *cstr)
+{
+    int pos;
+    size_t cstr_len;
+    MUST(string != NULL,      "string is NULL in str_remove_cstr");
+    MUST(string->arr != NULL, "string->arr is NULL in str_remove_cstr");
+    MUST(cstr != NULL,        "cstr is NULL in str_remove_cstr");
+
+    pos = str_find_cstr(string, cstr);
+    if(pos < 0){
+        return;
+    }
+
+    cstr_len = _strlen(cstr);
+
+    memmove(string->arr + pos, 
+            string->arr + pos + cstr_len,
+            string->size - cstr_len - pos + 1);
+
+    string->size -= cstr_len;
+}
+
+void
+str_remove(String *string1, String *string2)
+{
+    MUST(string1 != NULL,      "string1 is NULL in str_remove");
+    MUST(string1->arr != NULL, "string1->arr is NULL in str_remove");
+    MUST(string2 != NULL,      "string2 is NULL in str_remove");
+    MUST(string2->arr != NULL, "string2->arr is NULL in str_remove");
+
+    str_remove_cstr(string1, string2->arr);
+}
+
+void
 str_trim(String *string)
 {
     MUST(string != NULL,      "string is NULL in str_trim");
