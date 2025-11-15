@@ -359,9 +359,10 @@ str_upper(String *string)
 char
 str_at(const String *string, size_t index)
 {
-    MUST(string        != NULL,  "string is NULL in str_at");
+    MUST(string != NULL,       "string is NULL in str_at");
     MUST(string->arr != NULL,  "string->arr  is NULL in str_at");
     MUST(index < string->size, "index out of bounds in str_at");
+    MUST(index >= 0,           "index is negative");
 
     return string->arr[index];
 }
@@ -449,7 +450,7 @@ str_remove_cstr(String *string, const char *cstr)
 }
 
 void
-str_remove(String *string1, String *string2)
+str_remove(String *string1, const String *string2)
 {
     MUST(string1 != NULL,      "string1 is NULL in str_remove");
     MUST(string1->arr != NULL, "string1->arr is NULL in str_remove");
@@ -513,4 +514,3 @@ _str_from_file(String *string, const char *filename, Args args)
     close(fd);
     return 0;
 }
-
