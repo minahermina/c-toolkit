@@ -93,8 +93,8 @@ void str_trim(String *string);
 void str_trim_left(String *string);
 void str_trim_right(String *string);
 void str_remove_cstr(String *string, const char *cstr);
-/* 
 void str_remove(String *string1, const String *string2);
+/* 
 void str_replace(String *string1, const String *string2, Args args); 
 void str_replace_cstr(String *string, const char *cstr, Args args); 
 void str_clear(String *string); 
