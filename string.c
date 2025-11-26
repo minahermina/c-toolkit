@@ -477,8 +477,8 @@ str_free(String *string)
 
     string->size = 0;
     string->capacity = 0;
-    string->arr = NULL;
     free(string->arr);
+    string->arr = NULL;
 }
 
 int
