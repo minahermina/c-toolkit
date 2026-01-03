@@ -13,7 +13,7 @@ main()
 {
     Arena arena = {0};
     String str = {0};
-    arena_init(&arena, 1024 * 1024);
+    arena_init(&arena, MiB(1));
 
     str_set_cstr(&str, "Mina", .arena=&arena);
     // printf("str.arr = %p\n", str.arr);
