@@ -48,9 +48,13 @@ typedef struct {
         size_t capacity; \
     } name
 
-#define ARENA_REGION_SIZE        (sizeof(Region))
-#define ARENA_PAGE_SIZE          (sysconf(_SC_PAGESIZE))
-#define ARENA_SIZE_ARR(arr)      (sizeof(arr) / sizeof((arr)[0]))
+#define KiB(x)                ((x) << 10)
+#define MiB(x)                ((x) << 20)
+#define GiB(x)                ((x) << 30)
+
+#define ARENA_REGION_SIZE     (sizeof(Region))
+#define ARENA_PAGE_SIZE       (sysconf(_SC_PAGESIZE))
+#define ARENA_SIZE_ARR(arr)   (sizeof(arr) / sizeof((arr)[0]))
 
 #define ARENA_REGION_DEFAULT_CAPACITY   (ARENA_PAGE_SIZE * 2)
 
