@@ -31,15 +31,19 @@ arena_new_region(size_t size)
     Region *region;
     void *ptr;
 
-    ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    ptr = mmap(NULL, size, 
+               PROT_READ | PROT_WRITE,
+               MAP_ANONYMOUS | MAP_PRIVATE,
+               -1, 0);
+
     assert(ptr != MAP_FAILED);
 
-    region             = (Region*) ptr;
-    region->next       = NULL;
-    region->capacity   = size - ARENA_REGION_SIZE;
-    region->remaining  = size - ARENA_REGION_SIZE;
-    region->count      = 0;
-    region->bytes      = ((unsigned char*)ptr) + ARENA_REGION_SIZE;
+    region            = (Region*) ptr;
+    region->next      = NULL;
+    region->capacity  = size - ARENA_REGION_SIZE;
+    region->remaining = size - ARENA_REGION_SIZE;
+    region->count     = 0;
+    region->bytes     = ((unsigned char*)ptr) + ARENA_REGION_SIZE;
 
     return region;
 }
@@ -59,17 +63,20 @@ static void
 arena_append_region(Arena *arena, size_t size)
 {
     Region *region;
-    if(size < (size_t)ARENA_REGION_DEFAULT_CAPACITY){
+    if(size < (size_t)ARENA_REGION_DEFAULT_CAPACITY)
         size = ARENA_REGION_DEFAULT_CAPACITY;
-    } else{
+    else
         size = arena_align_size(size);
-    }
+    
     region = arena_new_region(size);
     arena->tail->next = region;
     arena->tail = region;
 }
 
-/* This must be called at the beginning of the lifetime to initialize the arena*/
+/* 
+    This must be called at the beginning 
+    of the lifetime to initialize the arena
+*/
 void
 arena_init(Arena *arena, size_t size)
 {
@@ -177,9 +184,7 @@ arena_realloc(Arena *arena, void *old_ptr, size_t old_size, size_t new_size)
     int ret;
     assert(arena != NULL);
 
-    if(new_size <= old_size){
-        return old_ptr;
-    }
+    if(new_size <= old_size) return old_ptr;
 
     /* Locking the mutex */
     ret = pthread_mutex_lock(&arena->mutex);
